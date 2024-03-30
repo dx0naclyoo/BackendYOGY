@@ -7,9 +7,10 @@ from src.backend.models import auth as models
 router = APIRouter(tags=["Auth"], prefix="/auth")
 
 
-@router.get("/{user_id}", response_model=models.User)
+@router.get("/{user_id}")
 async def user(user_id: int):
-    return models.User(id=user_id, username="Ivan", role={"id": 1, "name": "ADMIN"})
+    return user_id
+    # return models.User(id=user_id, username="Ivan", role={"id": 1, "name": "ADMIN"})
 
 
 
