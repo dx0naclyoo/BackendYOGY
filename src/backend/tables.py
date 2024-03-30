@@ -1,5 +1,5 @@
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, ForeignKey
-from sqlalchemy import Integer, Text, LargeBinary
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import Integer, Text, LargeBinary, ForeignKey
 
 
 class Base(DeclarativeBase): ...
