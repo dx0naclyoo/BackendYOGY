@@ -8,19 +8,23 @@ class Base(DeclarativeBase): ...
 class User(Base):
     __tablename__ = "user"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(Text, nullable=False)
 
-    # role_id: Mapped[int] = mapped_column(ForeignKey("userrole.id"))
-    # role: Mapped["UserRole"] = relationship(back_populates="user")
+    roles: Mapped[list["Role"]] = relationship(back_populates="users", uselist=True, secondary="user_role")
 
 
-class UserRole(Base):
-    __tablename__ = "userrole"
+class Role(Base):
+    __tablename__ = "role"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(Text, nullable=False)
 
-    # user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
-    # user: Mapped["User"] = relationship(back_populates="role")
+    users: Mapped[list["User"]] = relationship(back_populates="roles", uselist=True, secondary="user_role")
+
+
+class SecondaryUserRole(Base):
+    __tablename__ = "user_role"
+    role_id: Mapped[int] = mapped_column(ForeignKey("role.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True)
