@@ -42,7 +42,7 @@ class Orders(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     user: Mapped["User"] = relationship(back_populates="orders", uselist=False)
 
-    comment_id: Mapped[int] = mapped_column(ForeignKey("comment.id"))
+    comment_id: Mapped[int] = mapped_column(ForeignKey("comment.id"), nullable=True)
     comment: Mapped["Comment"] = relationship(back_populates="order", uselist=False)
 
     status_id: Mapped[int] = mapped_column(ForeignKey("order_status.id"), nullable=False)
