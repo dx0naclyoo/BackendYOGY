@@ -26,6 +26,7 @@ class AuthServices:
             )
             session.add(user)
             await session.commit()
+
         else:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
