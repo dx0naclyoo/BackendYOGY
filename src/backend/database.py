@@ -1,7 +1,8 @@
 from pathlib import Path
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from settings import settings
+
+from src.backend.settings import settings
 
 
 class DatabaseHandler:
