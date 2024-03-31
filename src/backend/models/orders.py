@@ -8,8 +8,6 @@ class Orders(BaseModel):
     user: str
 
 
-
-
 class OrderStatus(BaseModel):
     id: int
 

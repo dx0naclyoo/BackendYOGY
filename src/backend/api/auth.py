@@ -1,8 +1,5 @@
-from typing import Annotated
-
 from fastapi import APIRouter, Depends, Response
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.database import databaseHandler
