@@ -19,6 +19,7 @@ oauth_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 security = HTTPBearer()
 
 
+
 class AuthServices:
     @classmethod
     def hash_password(cls, password: str):
