@@ -8,9 +8,9 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend import tables
-from src.backend.models import auth as models
-from src.backend.settings import settings
+from backend import tables
+from backend.models import auth as models
+from backend.settings import settings
 
 import jwt
 from jwt import PyJWTError
