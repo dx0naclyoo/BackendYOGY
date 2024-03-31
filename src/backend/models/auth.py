@@ -16,10 +16,7 @@ class UserRegister(UserBase):
 
 class User(UserBase):
     id: int
-    role: Role
 
-    class Config:
-        from_attributes = True
 
 
 class Token(BaseModel):
