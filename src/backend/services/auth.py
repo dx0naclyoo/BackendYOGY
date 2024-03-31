@@ -17,6 +17,7 @@ from jwt import PyJWTError
 
 oauth_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
+
 class AuthServices:
     @classmethod
     def hash_password(cls, password: str):
@@ -65,11 +66,7 @@ class AuthServices:
             token,
     ) -> models.User:
 
-        try:
-            confirm_user = self.decode_jwt(token).get("user")
-
-        except PyJWTError as ex:
-            print(f"[INFO] Ошибка JWT Токена", ex)
+        confirm_user = self.decode_jwt(token).get("user")
 
         try:
             user = models.User.parse_obj(confirm_user)
@@ -95,9 +92,6 @@ class AuthServices:
         }
 
         return models.Token(access_token=self.encode_jwt(payload))
-
-    async def get_user(self, userdata: models.User, session: AsyncSession):
-        ...
 
     async def login(self, username: str, password: str, session: AsyncSession) -> models.Token:
         stmt = select(tables.User).where(tables.User.username == username)
