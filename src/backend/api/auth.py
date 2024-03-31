@@ -1,11 +1,13 @@
-from fastapi import APIRouter, Depends, Form
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Response
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.backend.database import databaseHandler
 from src.backend.models import auth as models
 from src.backend.services.auth import services
-from src.backend import tables
-from src.backend.database import databaseHandler
 
 router = APIRouter(tags=["Auth"], prefix="/auth")
 
@@ -13,7 +15,6 @@ router = APIRouter(tags=["Auth"], prefix="/auth")
 @router.get("/", response_model=models.User)
 async def user(
         userdata: models.User = Depends(services.get_current_user),
-        session: AsyncSession = Depends(databaseHandler.get_session)
 ):
     return models.User(
         id=userdata.id,
@@ -21,12 +22,15 @@ async def user(
     )
 
 
-@router.post("/login")
+@router.post("/login", response_model=models.Token)
 async def login(
+        response: Response,
         userdata: OAuth2PasswordRequestForm = Depends(),
         session: AsyncSession = Depends(databaseHandler.get_session)
 ):
-    return await services.login(username=userdata.username, password=userdata.password, session=session)
+    token = await services.login(username=userdata.username, password=userdata.password, session=session)
+    # response.headers["Authorization"] = f"{token.token_type} {token.access_token}"
+    return token
 
 
 @router.post("/register", response_model=models.Token)
@@ -34,4 +38,4 @@ async def register(
         user_data: models.UserRegister,
         session: AsyncSession = Depends(databaseHandler.get_session)
 ):
-    return await services.register(user_data, session)
+    return await services.register(user_data=user_data, session=session)

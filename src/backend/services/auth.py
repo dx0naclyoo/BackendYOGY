@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 
 import bcrypt
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, HTTPBearer
 from fastapi import Depends, HTTPException, status
 from jwt import PyJWTError
 from pydantic import ValidationError
@@ -16,6 +16,7 @@ import jwt
 from jwt import PyJWTError
 
 oauth_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+security = HTTPBearer()
 
 
 class AuthServices:
@@ -112,7 +113,7 @@ class AuthServices:
         stmt = select(tables.User).where(tables.User.username == user_data.username)
         db_response = await session.execute(stmt)
         db_user = db_response.scalar()
-
+        print(1)
         if db_user is None:
             user = tables.User(
                 username=user_data.username,
@@ -120,10 +121,13 @@ class AuthServices:
             .replace("b'", "").replace("'", "")
 
             )
+            print(2)
             session.add(user)
             await session.commit()
 
+            return self.create_token(user)
         else:
+            print(3)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Users already exist",
