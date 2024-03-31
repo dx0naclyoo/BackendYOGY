@@ -1,26 +1,17 @@
 from fastapi import HTTPException, status
-
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.models import auth as models
 from src.backend import tables
+from src.backend.models import auth as models
 
 
 class AuthServices:
-    def __init__(self):
-        self.ex_un_auth = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Users already exist",
-            headers={
-                "WWW-Authenticate": 'Bearer'
-            }
-        )
-
     async def get_user(self, user_id, session: AsyncSession):
         return user_id
 
-    async def login(self, session: AsyncSession): ...
+    async def login(self, session: AsyncSession):
+        ...
 
     async def register(self, user_data: models.UserRegister, session: AsyncSession):
 
@@ -40,9 +31,9 @@ class AuthServices:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Users already exist",
                 headers={
-                "WWW-Authenticate": 'Bearer'
-            }
-        )
+                    "WWW-Authenticate": 'Bearer'
+                }
+            )
 
 
 services = AuthServices()
