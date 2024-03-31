@@ -36,7 +36,13 @@ class AuthServices:
             session.add(user)
             await session.commit()
         else:
-            raise self.ex_un_auth
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Users already exist",
+                headers={
+                "WWW-Authenticate": 'Bearer'
+            }
+        )
 
 
 services = AuthServices()
