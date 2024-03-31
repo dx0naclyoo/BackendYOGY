@@ -9,8 +9,8 @@ BASE_DIR = Path(__file__).parent.parent.parent
 
 
 class Settings(BaseSettings):
-    host: str = "127.0.0.1"
-    port: int = 8000
+    host: str = "0.0.0.0"
+    port: int = 10000
     debug: bool = False
 
     database_url: str = os.getenv("postgres_url")
