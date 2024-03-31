@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     private_key_path: Path = BASE_DIR / "src" / "certs" / "jwt-private.pem"
     public_key_path: Path = BASE_DIR / "src" / "certs" / "jwt-public.pem"
     algorithm: str = "RS256"
-    access_token_expire: int = 5
+    access_token_expire: int = 15
 
 
 settings = Settings()
