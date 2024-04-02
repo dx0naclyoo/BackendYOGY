@@ -2,13 +2,17 @@ FROM python:3.12
 
 WORKDIR /src
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+RUN apt-get update && \
+    apt install -y python3-dev
 
-COPY requirements.txt requirements.txt
+RUN pip install --upgrade pip
+RUN pip install poetry
+ADD pyproject.toml .
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-root --no-interaction --no-ansi
 
-RUN pip install --no-cashe-dir --upgrade -r requirements.txt
+EXPOSE 8000
+
+COPY . .
 
 
-
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
