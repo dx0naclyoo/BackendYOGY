@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.database import databaseHandler
 from src.backend.models import orders as models
-from src.backend.services import orders as services
+from src.backend.services.orders import services
 
 router = APIRouter(tags=["Orders"], prefix="/orders")
 

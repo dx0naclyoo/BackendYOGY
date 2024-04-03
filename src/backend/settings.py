@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -12,7 +13,7 @@ class Settings(BaseSettings):
     port: int = 10000
     debug: bool = False
 
-    database_url: str = "postgresql+asyncpg://default:CY3DZQ2PlHJO@ep-crimson-fog-a2l1kp2b-pooler.eu-central-1.aws.neon.tech:5432"
+    database_url: str = os.getenv("POSTGRES_URL")
     database_echo: bool = True
 
     private_key_path: Path = BASE_DIR / "src" / "certs" / "jwt-private.pem"
