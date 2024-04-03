@@ -127,6 +127,7 @@ class Projects(Base):
     # Мотивационные письма
     motivation_letters: Mapped["MotivationLetters"] = relationship(back_populates="projects", uselist=False)
 
+
 class AbstractProjectCharacteristics(Base):
     __abstract__ = True
 

@@ -13,6 +13,6 @@ RUN poetry install --no-root --no-interaction --no-ansi
 
 COPY . .
 
-CMD gunicorn app:app --workers 1 --worker-class uvicorn.workers.UvicornWorker -bind 0.0.0.0:8000
+CMD uvicorn src.backend.app:app --reload --host 0.0.0.0 --port 8000
 
 

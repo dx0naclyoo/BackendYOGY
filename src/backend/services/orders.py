@@ -2,10 +2,10 @@ from sqlalchemy import select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.tables import Orders
-from src.backend.models import orders as orders_models
-from src.backend.models import auth as auth_models
 from src.backend import tables
+from src.backend.models import auth as auth_models
+from src.backend.models import orders as orders_models
+from src.backend.tables import Orders
 
 
 class OrdersServices:
@@ -26,7 +26,6 @@ class OrdersServices:
         table_orders = tables.Orders(**new_order_data.model_dump())
         session.add(table_orders)
         await session.commit()
-
 
     async def get_all_orders(self, session: AsyncSession, limit: int = 10, offset: int = 0) -> list[
         orders_models.Orders]:
