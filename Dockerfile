@@ -11,8 +11,8 @@ ADD pyproject.toml .
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-root --no-interaction --no-ansi
 
-EXPOSE 8000
-
 COPY . .
+
+CMD gunicorn app:app --workers 1 --worker-class uvicorn.workers.UvicornWorker -bind 0.0.0.0:8000
 
 
