@@ -20,13 +20,6 @@ app.include_router(api_v1)
 
 origins = ["*"]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Handle CORS
 class CORSHandler(APIRoute):
@@ -47,3 +40,11 @@ class CORSHandler(APIRoute):
 router = APIRouter(route_class=CORSHandler)
 
 app.include_router(router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
