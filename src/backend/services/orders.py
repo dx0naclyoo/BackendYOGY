@@ -14,12 +14,22 @@ from src.backend import tables
 
 class OrdersServices:
 
+    async def _get(self, session: AsyncSession, order_id: int) -> tables.Orders:
+        stmt = select(tables.Orders).where(tables.Orders.id == order_id)
+        result: Result = await session.execute(stmt)
+        order = result.scalar()
+
+        if not order:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+
+        return order
+
     async def get(self,
                   session: AsyncSession,
                   user_data: auth_models.User,
                   order_id: int) -> orders_models.Orders:
 
-        stmt = select(tables.Orders).where(tables.Orders.user_id == user_data.id and tables.Orders.id == order_id)
+        stmt = select(tables.Orders).where((tables.Orders.user_id == user_data.id) & (tables.Orders.id == order_id))
         result: Result = await session.execute(stmt)
         order = result.scalar()
 
@@ -27,6 +37,9 @@ class OrdersServices:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
 
         return orders_models.Orders.parse_obj(order)
+
+
+
 
     async def get_all(self,
                       session: AsyncSession,
@@ -62,6 +75,7 @@ class OrdersServices:
         await session.commit()
         return {"Status": "Successfully"}
 
+
     async def update(self,
                      session: AsyncSession,
                      user_data: auth_models.User,
@@ -69,7 +83,7 @@ class OrdersServices:
                      order_data: orders_models.OrderUpdate,
                      ) -> orders_models.Orders:
 
-        order = await self.get(session, order_id)
+        order = await self._get(session=session, order_id=order_id)
 
         if order.user_id != user_data.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the customer of this order")
@@ -88,7 +102,9 @@ class OrdersServices:
                      user_data: auth_models.User,
                      order_id: int):
 
-        order = await self.get(session, order_id)
+        order = await self._get(session=session, order_id=order_id)
+        if not order:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="order not found")
 
         if order.user_id != user_data.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not the customer of this order")
