@@ -18,7 +18,8 @@ origins = [
     "https://10.217.154.102:0/",
     "10.217.154.9:0/",
     "http://10.217.154.9:0/",
-    "https://ugor.netlify.app/"
+    "https://ugor.netlify.app/",
+    "https://ugor.netlify.app/auth"
 ]
 
 app.add_middleware(
