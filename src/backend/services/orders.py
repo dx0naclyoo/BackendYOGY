@@ -7,21 +7,21 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.backend import tables
 from src.backend.models import auth as auth_models
 from src.backend.models import orders as orders_models
-from src.backend.tables import Orders
+from src.backend import tables
 
 
 class OrdersServices:
 
     async def get(self,
                   session: AsyncSession,
-                  order_id: int):
+                  user_data: auth_models.User,
+                  order_id: int) -> orders_models.Orders:
 
-        stmt = select(Orders).where(Orders.id == order_id)
+        stmt = select(tables.Orders).where(tables.Orders.user_id == user_data.id and tables.Orders.id == order_id)
         result: Result = await session.execute(stmt)
-        order = result.scalars().first()
+        order = result.scalar()
 
         if not order:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
@@ -30,18 +30,19 @@ class OrdersServices:
 
     async def get_all(self,
                       session: AsyncSession,
+                      user_data: auth_models.User,
                       limit: int = 10,
                       offset: int = 0) -> list[orders_models.Orders]:
 
-        stmt = select(Orders).limit(limit).offset(offset)
+        stmt = select(tables.Orders).where(tables.Orders.user_id == user_data.id).limit(limit).offset(offset)
         result: Result = await session.execute(stmt)
         orders = result.scalars().all()
         return list(orders)
 
     async def create(self,
-                   session: AsyncSession,
-                   user_data: auth_models.User,
-                   order_data: orders_models.OrderAdd):
+                     session: AsyncSession,
+                     user_data: auth_models.User,
+                     order_data: orders_models.OrderAdd):
 
         existing_order = await session.execute(select(tables.Orders).filter(tables.Orders.name == order_data.name))
         existing_order = existing_order.scalar()
