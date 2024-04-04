@@ -11,11 +11,16 @@ class Orders(BaseModel):
         from_attributes = True
 
 
-class OrderAdd(BaseModel):
+class OrderAddForBackend(BaseModel):
     name: str
     description: str
     user_id: int = None
     status_id: int = None
+
+
+class OrderAddForUSER(BaseModel):
+    name: str
+    description: str
 
 
 class OrderStatus(BaseModel):

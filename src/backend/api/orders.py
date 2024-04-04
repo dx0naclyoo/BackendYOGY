@@ -30,7 +30,7 @@ async def get_order(
 
 @router.post("/")
 async def create_order(
-        order_data: orders_models.OrderAdd,
+        order_data: orders_models.OrderAddForUSER,
         session: AsyncSession = Depends(databaseHandler.get_session),
         user_data: auth_models.User = Depends(auth_services.get_current_user),
 ):

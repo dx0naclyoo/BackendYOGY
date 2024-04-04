@@ -55,7 +55,7 @@ class OrdersServices:
     async def create(self,
                      session: AsyncSession,
                      user_data: auth_models.User,
-                     order_data: orders_models.OrderAdd):
+                     order_data: orders_models.OrderAddForUSER):
 
         existing_order = await session.execute(select(tables.Orders).filter(tables.Orders.name == order_data.name))
         existing_order = existing_order.scalar()
@@ -63,7 +63,7 @@ class OrdersServices:
         if existing_order:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project with this name already exists")
 
-        new_order_data = orders_models.OrderAdd(
+        new_order_data = orders_models.OrderAddForBackend(
             name=order_data.name,
             description=order_data.description,
             user_id=user_data.id,
@@ -74,7 +74,6 @@ class OrdersServices:
         session.add(table_orders)
         await session.commit()
         return {"Status": "Successfully"}
-
 
     async def update(self,
                      session: AsyncSession,
