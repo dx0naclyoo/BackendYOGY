@@ -1,23 +1,22 @@
 from datetime import timedelta, datetime
 
 import bcrypt
-from fastapi.security import OAuth2PasswordBearer, HTTPBearer
+import jwt
 from fastapi import Depends, HTTPException, status
-from jwt import PyJWTError
+from fastapi.security import OAuth2PasswordBearer, HTTPBearer
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend import tables
 from src.backend.models import auth as models
+from src.backend.models import role as role_models
 from src.backend.settings import settings
+from src.backend.services.role import services as role_services
 
-import jwt
-from jwt import PyJWTError
 
 oauth_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 security = HTTPBearer()
-
 
 
 class AuthServices:
@@ -82,10 +81,11 @@ class AuthServices:
     async def get_current_user(self, token: str = Depends(oauth_schema)) -> models.User:
         return await self.validate_token(token)
 
-    def create_token(self, user: tables.User) -> models.Token:
+    def create_token(self, user: tables.User, roles) -> models.Token:
         userdata = models.User(
             id=user.id,
-            username=user.username
+            username=user.username,
+            roles=roles
         )
 
         payload = {
@@ -96,9 +96,20 @@ class AuthServices:
         return models.Token(access_token=self.encode_jwt(payload))
 
     async def login(self, username: str, password: str, session: AsyncSession) -> models.Token:
+
+        #  Get user from DATABASE
+
         stmt = select(tables.User).where(tables.User.username == username)
         db_response = await session.execute(stmt)
         user = db_response.scalar()
+
+        stmt_all = select(tables.SecondaryUserRole).where(tables.SecondaryUserRole.user_id == user.id)
+        database_response = await session.execute(stmt_all)
+        end_user = database_response.scalars().all()
+
+        tables_roles_user: list[tables.Role] = [await role_services.get_role(role_id=x.role_id, session=session) for x in end_user]
+        roles_user = [x.name for x in tables_roles_user]
+
 
         if not user:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User does not exist, please register")
@@ -106,7 +117,7 @@ class AuthServices:
         # hashed_password = str.encode(user.password, encoding="utf-8")
 
         if self.validate_password(password, str.encode(user.password, encoding="utf-8")):
-            return self.create_token(user)
+            return self.create_token(user=user, roles=roles_user)
 
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate credentials")
 
@@ -114,21 +125,32 @@ class AuthServices:
         stmt = select(tables.User).where(tables.User.username == user_data.username)
         db_response = await session.execute(stmt)
         db_user = db_response.scalar()
-        print(1)
+
         if db_user is None:
             user = tables.User(
                 username=user_data.username,
-                password=str(self.hash_password(user_data.password))
-            .replace("b'", "").replace("'", "")
-
+                password=str(self.hash_password(user_data.password)).replace("b'", "").replace("'", "")
             )
-            print(2)
             session.add(user)
             await session.commit()
 
-            return self.create_token(user)
+            #  ADD ROLE FOR NEW USER
+
+            stmt_undef_role = select(tables.Role).where(tables.Role.name == role_models.EnumBackendRole.UNDEFINED)
+            resp = await session.execute(stmt_undef_role)
+            undef_role = resp.scalar()
+
+            new_role = tables.SecondaryUserRole(
+                user_id=user.id,
+                role_id=undef_role.id
+            )
+
+            session.add(new_role)
+            await session.commit()
+
+            # self.create_token(user)
+            return {"response": 200, "message": "Registration completed"}
         else:
-            print(3)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Users already exist",

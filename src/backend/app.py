@@ -37,6 +37,7 @@ class CORSHandler(APIRoute):
 
         return preflight_handler
 
+
 router = APIRouter(route_class=CORSHandler)
 
 app.include_router(router)

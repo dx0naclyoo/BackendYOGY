@@ -1,9 +1,9 @@
+from enum import Enum
+from typing import List
+
 from pydantic import BaseModel
 
-
-class Role(BaseModel):
-    id: int
-    name: str
+from src.backend.models import role as role_models
 
 
 class UserBase(BaseModel):
@@ -16,6 +16,7 @@ class UserRegister(UserBase):
 
 class User(UserBase):
     id: int
+    roles: List[role_models.EnumBackendRole]
 
 
 class Token(BaseModel):

@@ -15,14 +15,14 @@ async def user(
 ):
     return models.User(
         id=userdata.id,
-        username=userdata.username
+        username=userdata.username,
+        roles=userdata.roles,
     )
 
 
 @router.post("/login", response_model=models.Token)
 async def login(
-        response: Response,
-        userdata: OAuth2PasswordRequestForm = Depends(),
+        userdata: models.UserRegister,
         session: AsyncSession = Depends(databaseHandler.get_session)
 ):
     token = await services.login(username=userdata.username, password=userdata.password, session=session)
@@ -30,7 +30,7 @@ async def login(
     return token
 
 
-@router.post("/register", response_model=models.Token)
+@router.post("/register")
 async def register(
         user_data: models.UserRegister,
         session: AsyncSession = Depends(databaseHandler.get_session)

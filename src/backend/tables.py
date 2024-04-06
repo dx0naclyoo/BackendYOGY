@@ -1,8 +1,13 @@
 from datetime import datetime
-from enum import Enum
 
+from sqlalchemy import Text, ForeignKey, DateTime, TIMESTAMP, func, Enum, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from sqlalchemy import Integer, Text, LargeBinary, ForeignKey, DateTime, TIMESTAMP, func
+
+from src.backend.models import role as role_models
+
+
+# from enum import Enum
+# from typing import List
 
 
 class Base(DeclarativeBase):
@@ -18,6 +23,11 @@ class User(Base):
     username: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(Text, nullable=False)
 
+    roles: Mapped[list["Role"]] = relationship(back_populates="users",
+                                               uselist=True,
+                                               secondary="user_role",
+                                               lazy="selectin")
+
     connection: Mapped["Connection"] = relationship(back_populates="user", uselist=True)
 
     motivation_letters: Mapped["MotivationLetters"] = relationship(back_populates="user", uselist=True)
@@ -26,18 +36,17 @@ class User(Base):
 
     projects: Mapped["Projects"] = relationship(back_populates="user", uselist=True)
 
-    roles: Mapped[list["Role"]] = relationship(back_populates="users", uselist=True, secondary="user_role")
-
-
-
 
 class Role(Base):
     __tablename__ = "role"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(Text, nullable=False)
+    name: Mapped["role_models.EnumBackendRole"] = mapped_column(String, nullable=False)
 
-    users: Mapped[list["User"]] = relationship(back_populates="roles", uselist=True, secondary="user_role")
+    users: Mapped[list["User"]] = relationship(back_populates="roles",
+                                               uselist=True,
+                                               secondary="user_role",
+                                               lazy="selectin")
 
 
 class SecondaryUserRole(Base):
