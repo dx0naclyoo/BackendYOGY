@@ -22,7 +22,7 @@ async def user(
 
 @router.post("/login", response_model=models.Token)
 async def login(
-        userdata: models.UserRegister,
+        userdata: OAuth2PasswordRequestForm = Depends(),
         session: AsyncSession = Depends(databaseHandler.get_session)
 ):
     token = await services.login(username=userdata.username, password=userdata.password, session=session)

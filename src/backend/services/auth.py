@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 import bcrypt
 import jwt
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, HTTPBearer
+from fastapi.security import OAuth2PasswordBearer, HTTPBearer, HTTPBasic
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +16,6 @@ from src.backend.services.role import services as role_services
 
 
 oauth_schema = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
-security = HTTPBearer()
 
 
 class AuthServices:
@@ -109,7 +108,6 @@ class AuthServices:
 
         tables_roles_user: list[tables.Role] = [await role_services.get_role(role_id=x.role_id, session=session) for x in end_user]
         roles_user = [x.name for x in tables_roles_user]
-
 
         if not user:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User does not exist, please register")
