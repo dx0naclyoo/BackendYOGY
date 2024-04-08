@@ -17,13 +17,12 @@ async def user(
     return await services.get_user(user=user_in_token, session=session)
 
 
-@router.post("/login", response_model=models.Token)
+@router.post("/login")
 async def login(
         userdata: OAuth2PasswordRequestForm = Depends(),
         session: AsyncSession = Depends(databaseHandler.get_session)
 ):
     token = await services.login(username=userdata.username, password=userdata.password, session=session)
-    # response.headers["Authorization"] = f"{token.token_type} {token.access_token}"
     return token
 
 

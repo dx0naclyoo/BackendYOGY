@@ -1,8 +1,7 @@
 from datetime import datetime
 from enum import Enum
-from pydantic import BaseModel
 
-from sqlalchemy import DateTime
+from pydantic import BaseModel
 
 
 class EnumCustomerType(str, Enum):
@@ -10,28 +9,39 @@ class EnumCustomerType(str, Enum):
     EXTERNAL = "Внешний"
 
 
-class Projects(BaseModel):
+class Spheres(str, Enum):
+    IT = "It"
+    volunteering = "Волонтёрство"
+    history = "История"
+    logistics = "Логистика"
+
+
+class Types(str, Enum):
+    busines = "Бизнес"
+    social = "Социальный"
+
+
+class Identity(str, Enum):
+    GREEN = "Green"
+    LEAN = "Lean"
+    SMART = "Smart"
+
+
+class BaseProjects(BaseModel):
+    count_place: int
+    deadline_date: datetime
+    customer_type: EnumCustomerType
+    orders_id: int
+    lecturer_id: int
+
+
+class Projects(BaseProjects):
     id: int
-    count_place: int
     registration_date: datetime
-    deadline_date: datetime
-    customer_type: EnumCustomerType
-    orders_id: int
-    user_id: int
-    # types_id: int | None = None
-    # direction_identity_id: int | None = None
-    # spheres_id: int | None = None
-    # tags_id: int | None = None
 
 
-class ProjectsAddForBackend(BaseModel):
-    name: str
-    count_place: int
-    registration_date: datetime
-    deadline_date: datetime
-    customer_type: EnumCustomerType
-    orders_id: int
-    user_id: int
+class AddProjects(BaseProjects):
+    pass
 
 
 class ProjectsAddForUSER(BaseModel):
@@ -39,5 +49,3 @@ class ProjectsAddForUSER(BaseModel):
     description: str
     user_id: int = None
     orders_id: int
-
-

@@ -29,18 +29,22 @@ class User(Base):
                                                secondary="user_role",
                                                lazy="selectin")
 
-    students: Mapped["SecondaryProjectUser"] = relationship(back_populates="user",
-                                                            uselist=True,
-                                                            secondary="project_user",
-                                                            lazy="selectin"
-                                                            )
+    student_projects: Mapped[list["Projects"]] = relationship(back_populates="students",
+                                                              uselist=True,
+                                                              secondary="project_user",
+                                                              lazy="selectin")
+
+    # project: Mapped["Projects"] = relationship(back_populates="lecturers", uselist=True, lazy="joined")
 
     motivation_letters: Mapped["MotivationLetters"] = relationship(back_populates="user", uselist=True)
 
     orders: Mapped["Orders"] = relationship(back_populates="user", uselist=True)
 
-    projects: Mapped["Projects"] = relationship(back_populates="lecturer", uselist=True)
+    projects: Mapped["Projects"] = relationship(back_populates="lecturers", uselist=True, lazy="joined")
 
+    # lecturer_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    # lecturers: Mapped["User"] = relationship(back_populates="projects",
+    #                                          uselist=False)
 
 class Role(Base):
     __tablename__ = "role"
@@ -60,43 +64,6 @@ class SecondaryUserRole(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True)
 
 
-class Orders(Base):
-    __tablename__ = "orders"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(Text, nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=False)
-
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-    user: Mapped["User"] = relationship(back_populates="orders", uselist=False)
-
-    comment_id: Mapped[int] = mapped_column(ForeignKey("comment.id"), nullable=True)
-    comment: Mapped["Comment"] = relationship(back_populates="order", uselist=False)
-
-    status_id: Mapped[int] = mapped_column(ForeignKey("order_status.id"), nullable=False)
-    status: Mapped["OrderStatus"] = relationship(back_populates="order", uselist=False)
-
-    projects: Mapped["Projects"] = relationship(back_populates="orders", uselist=False)
-
-
-class OrderStatus(Base):
-    __tablename__ = "order_status"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
-
-    order: Mapped["Orders"] = relationship(back_populates="status", uselist=True, lazy="joined")
-
-
-class Comment(Base):
-    __tablename__ = "comment"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    text: Mapped[str] = mapped_column(Text, nullable=False)
-
-    order: Mapped["Orders"] = relationship(back_populates="comment", uselist=False)
-
-
 class Projects(Base):
     __tablename__ = "projects"
 
@@ -109,11 +76,10 @@ class Projects(Base):
                                                default=projects_models.EnumCustomerType.INNER)
 
     # Связь студентов с проектами
-    students: Mapped["SecondaryProjectUser"] = relationship(back_populates="projects",
-                                                            uselist=False,
-                                                            secondary="project_user",
-                                                            lazy="selectin"
-                                                            )
+    students: Mapped[list["User"]] = relationship(back_populates="student_projects",
+                                                  uselist=True,
+                                                  secondary="project_user",
+                                                  lazy="joined")
 
     # ForeignKey на заказ
     orders_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), nullable=False)
@@ -137,8 +103,8 @@ class Projects(Base):
     spheres: Mapped["Spheres"] = relationship(back_populates="projects", uselist=False)
 
     # Тэги проекта
-    tags_id: Mapped[int] = mapped_column(ForeignKey("tags.id"), nullable=False)
-    tags: Mapped["Tags"] = relationship(back_populates="projects", uselist=False)
+    # tags_id: Mapped[int] = mapped_column(ForeignKey("tags.id"), nullable=False)
+    # tags: Mapped["Tags"] = relationship(back_populates="projects", uselist=False)
 
     # Мотивационные письма
     motivation_letters: Mapped["MotivationLetters"] = relationship(back_populates="projects", uselist=False)
@@ -147,15 +113,10 @@ class Projects(Base):
 class SecondaryProjectUser(Base):
     __tablename__ = "project_user"
 
-    # id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True, nullable=False)
-    projects_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), primary_key=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True)
+    projects_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), primary_key=True)
 
     registration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-
-    # user: Mapped["User"] = relationship(back_populates="connection", uselist=False)
-    # projects: Mapped["Projects"] = relationship(back_populates="connection", uselist=True)
 
 
 class MotivationLetters(Base):
@@ -196,7 +157,44 @@ class Types(AbstractProjectCharacteristics):
     projects: Mapped["Projects"] = relationship(back_populates="types", uselist=True)
 
 
-class Tags(AbstractProjectCharacteristics):
-    __tablename__ = "tags"
+# class Tags(AbstractProjectCharacteristics):
+#     __tablename__ = "tags"
+#
+#     projects: Mapped["Projects"] = relationship(back_populates="tags", uselist=True)
 
-    projects: Mapped["Projects"] = relationship(back_populates="tags", uselist=True)
+
+class Orders(Base):
+    __tablename__ = "orders"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    user: Mapped["User"] = relationship(back_populates="orders", uselist=False)
+
+    comment_id: Mapped[int] = mapped_column(ForeignKey("comment.id"), nullable=True)
+    comment: Mapped["Comment"] = relationship(back_populates="order", uselist=False)
+
+    status_id: Mapped[int] = mapped_column(ForeignKey("order_status.id"), nullable=False)
+    status: Mapped["OrderStatus"] = relationship(back_populates="order", uselist=False)
+
+    projects: Mapped["Projects"] = relationship(back_populates="orders", uselist=False)
+
+
+class OrderStatus(Base):
+    __tablename__ = "order_status"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+
+    order: Mapped["Orders"] = relationship(back_populates="status", uselist=True, lazy="selectin")
+
+
+class Comment(Base):
+    __tablename__ = "comment"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+
+    order: Mapped["Orders"] = relationship(back_populates="comment", uselist=False)

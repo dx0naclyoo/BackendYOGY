@@ -57,8 +57,8 @@ class OrdersServices:
                      user_data: auth_models.User,
                      order_data: orders_models.OrderAddForUSER):
 
-        existing_order = await session.execute(select(tables.Orders).filter(tables.Orders.name == order_data.name))
-        existing_order = existing_order.scalar()
+        database_response = await session.execute(select(tables.Orders).filter(tables.Orders.name == order_data.name))
+        existing_order = database_response.scalar()
 
         if existing_order:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Project with this name already exists")

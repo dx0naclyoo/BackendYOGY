@@ -49,28 +49,28 @@ class RoleServices:
                 )
 
     async def add_roles_in_database(self,
-                                    user: auth_models.User,
+                                    # user: auth_models.User,
                                     role: role_models.EnumBackendRole,
                                     session: AsyncSession) -> tables.Role | None:
 
-        roles_user = await self.get_list_user_roles(user=user, session=session)
+        # roles_user = await self.get_list_user_roles(user=user, session=session)
 
-        if role_models.EnumBackendRole.ADMIN in roles_user:
-            stmt = select(tables.Role).where(tables.Role.name == role)
-            db_response = await session.execute(stmt)
+        # if role_models.EnumBackendRole.ADMIN in roles_user:
+        stmt = select(tables.Role).where(tables.Role.name == role)
+        db_response = await session.execute(stmt)
 
-            if db_response.scalar():
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                    detail="Role with this name already exists")
+        if db_response.scalar():
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="Role with this name already exists")
 
-            database_role = tables.Role(
-                name=role
-            )
-            session.add(database_role)
-            await session.commit()
-            return database_role
+        database_role = tables.Role(
+            name=role
+        )
+        session.add(database_role)
+        await session.commit()
+        return database_role
 
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No permission for this action")
+        # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No permission for this action")
 
     async def get_id_role(self,
                           role: role_models.EnumBackendRole,

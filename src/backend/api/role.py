@@ -55,7 +55,7 @@ async def get_id_role(
 @router.get("/add/{role}")
 async def add_role_in_database(
         role: role_models.EnumBackendRole,
-        user: auth_models.User = Depends(auth_services.get_current_user),
+        # user: auth_models.User = Depends(auth_services.get_current_user),
         session: AsyncSession = Depends(databaseHandler.get_session),
 ):
-    return await role_services.add_roles_in_database(role=role, session=session, user=user)
+    return await role_services.add_roles_in_database(role=role, session=session)
