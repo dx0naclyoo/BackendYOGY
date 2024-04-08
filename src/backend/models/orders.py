@@ -1,11 +1,12 @@
 from pydantic import BaseModel
-
+from src.backend.models import auth
 
 class Orders(BaseModel):
     id: int
     name: str
     description: str
     user_id: int
+
 
     class Config:
         from_attributes = True
@@ -29,6 +30,7 @@ class OrderStatus(BaseModel):
 
 class Comment(BaseModel):
     id: int
+
 
 
 class OrderUpdate(BaseModel):

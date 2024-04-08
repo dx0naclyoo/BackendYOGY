@@ -1,9 +1,11 @@
 from datetime import datetime
 
-from sqlalchemy import Text, ForeignKey, DateTime, TIMESTAMP, func, Enum, String
+from sqlalchemy import Text, ForeignKey, DateTime, TIMESTAMP, func, Enum, String, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 from src.backend.models import role as role_models
+
+from src.backend.models import projects as projects_models
 
 
 # from enum import Enum
@@ -80,7 +82,7 @@ class OrderStatus(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
 
-    order: Mapped["Orders"] = relationship(back_populates="status", uselist=True)
+    order: Mapped["Orders"] = relationship(back_populates="status", uselist=True, lazy="joined")
 
 
 class Comment(Base):
@@ -92,19 +94,17 @@ class Comment(Base):
     order: Mapped["Orders"] = relationship(back_populates="comment", uselist=False)
 
 
-class CustomerType(str, Enum):
-    INNER = "Внутренний"
-    EXTERNAL = "Внешний"
 
 
 class Projects(Base):
     __tablename__ = "projects"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    countPlace: Mapped[int]
+    count_place: Mapped[int] = mapped_column(Integer, nullable=False,)
     registration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     deadline_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    customer_type: Mapped["CustomerType"] = mapped_column(Text, nullable=False, default=CustomerType.INNER)
+    customer_type: Mapped["projects_models.EnumCustomerType"] = mapped_column(Text, nullable=False,
+                                                          default=projects_models.EnumCustomerType.INNER)
 
     # Связь студентов с проектами
     connection: Mapped["Connection"] = relationship(back_populates="projects", uselist=False)
