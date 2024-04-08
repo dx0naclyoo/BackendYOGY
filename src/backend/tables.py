@@ -51,8 +51,8 @@ class Role(Base):
 
 class SecondaryUserRole(Base):
     __tablename__ = "user_role"
-    role_id: Mapped[int] = mapped_column(ForeignKey("role.id"), primary_key=True, unique=False)
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True, unique=False)
+    role_id: Mapped[int] = mapped_column(ForeignKey("role.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True)
 
 
 class Orders(Base):
