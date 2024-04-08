@@ -11,13 +11,10 @@ router = APIRouter(tags=["Auth"], prefix="/auth")
 
 @router.get("/", response_model=models.User)
 async def user(
-        userdata: models.User = Depends(services.get_current_user),
+        user_in_token: models.User = Depends(services.get_current_user),
+        session: AsyncSession = Depends(databaseHandler.get_session)
 ):
-    return models.User(
-        id=userdata.id,
-        username=userdata.username,
-        roles=userdata.roles,
-    )
+    return await services.get_user(user=user_in_token, session=session)
 
 
 @router.post("/login", response_model=models.Token)

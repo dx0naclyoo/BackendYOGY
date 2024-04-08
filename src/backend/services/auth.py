@@ -102,12 +102,7 @@ class AuthServices:
         db_response = await session.execute(stmt)
         user = db_response.scalar()
 
-        stmt_all = select(tables.SecondaryUserRole).where(tables.SecondaryUserRole.user_id == user.id)
-        database_response = await session.execute(stmt_all)
-        end_user = database_response.scalars().all()
-
-        tables_roles_user: list[tables.Role] = [await role_services.get_role(role_id=x.role_id, session=session) for x in end_user]
-        roles_user = [x.name for x in tables_roles_user]
+        user_roles = await role_services.get_list_user_roles(user=user, session=session)
 
         if not user:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User does not exist, please register")
@@ -115,7 +110,7 @@ class AuthServices:
         # hashed_password = str.encode(user.password, encoding="utf-8")
 
         if self.validate_password(password, str.encode(user.password, encoding="utf-8")):
-            return self.create_token(user=user, roles=roles_user)
+            return self.create_token(user=user, roles=user_roles)
 
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate credentials")
 
@@ -156,6 +151,19 @@ class AuthServices:
                     "WWW-Authenticate": 'Bearer'
                 }
             )
+
+    async def get_user(self, user: models.User, session: AsyncSession):
+        stmt = select(tables.User).where(tables.User.id == user.id)
+        result = await session.execute(stmt)
+        new_user = result.scalar()
+
+        user_roles = await role_services.get_list_user_roles(user=user, session=session)
+
+        return models.User(
+            username=new_user.username,
+            id=new_user.id,
+            roles=user_roles,
+        )
 
 
 services = AuthServices()

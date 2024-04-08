@@ -18,6 +18,9 @@ class User(UserBase):
     id: int
     roles: List[role_models.EnumBackendRole]
 
+    class Config:
+        from_attributes = True
+
 
 class Token(BaseModel):
     access_token: str
