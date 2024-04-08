@@ -19,13 +19,18 @@ async def get_orders_all(
     return await orders_services.get_all(session=session, offset=offset, user_data=user_data)
 
 
-@router.get("/{order_id}", response_model=orders_models.Orders)
+@router.get("/{order_id}")
 async def get_order(
         order_id: int,
         session: AsyncSession = Depends(databaseHandler.get_session),
         user_data: auth_models.User = Depends(auth_services.get_current_user),
 ):
-    return await orders_services.get(session=session, order_id=order_id, user_data=user_data)
+
+    order = await orders_services.get(session=session, order_id=order_id, user_data=user_data)
+    return {
+        "user": user_data,
+        "order": order
+    }
 
 
 @router.post("/")

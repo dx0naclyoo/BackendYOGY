@@ -1,11 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy import Text, ForeignKey, DateTime, TIMESTAMP, func, Enum, String, Integer
+from sqlalchemy import Text, ForeignKey, DateTime, TIMESTAMP, func, String, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
-from src.backend.models import role as role_models
-
 from src.backend.models import projects as projects_models
+from src.backend.models import role as role_models
 
 
 # from enum import Enum
@@ -30,13 +29,17 @@ class User(Base):
                                                secondary="user_role",
                                                lazy="selectin")
 
-    connection: Mapped["Connection"] = relationship(back_populates="user", uselist=True)
+    students: Mapped["SecondaryProjectUser"] = relationship(back_populates="user",
+                                                            uselist=True,
+                                                            secondary="project_user",
+                                                            lazy="selectin"
+                                                            )
 
     motivation_letters: Mapped["MotivationLetters"] = relationship(back_populates="user", uselist=True)
 
     orders: Mapped["Orders"] = relationship(back_populates="user", uselist=True)
 
-    projects: Mapped["Projects"] = relationship(back_populates="user", uselist=True)
+    projects: Mapped["Projects"] = relationship(back_populates="lecturer", uselist=True)
 
 
 class Role(Base):
@@ -94,28 +97,32 @@ class Comment(Base):
     order: Mapped["Orders"] = relationship(back_populates="comment", uselist=False)
 
 
-
-
 class Projects(Base):
     __tablename__ = "projects"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    count_place: Mapped[int] = mapped_column(Integer, nullable=False,)
+    count_place: Mapped[int] = mapped_column(Integer, nullable=False, )
     registration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     deadline_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    customer_type: Mapped["projects_models.EnumCustomerType"] = mapped_column(Text, nullable=False,
-                                                          default=projects_models.EnumCustomerType.INNER)
+    customer_type: Mapped[str] = mapped_column(Text,
+                                               nullable=False,
+                                               default=projects_models.EnumCustomerType.INNER)
 
     # Связь студентов с проектами
-    connection: Mapped["Connection"] = relationship(back_populates="projects", uselist=False)
+    students: Mapped["SecondaryProjectUser"] = relationship(back_populates="projects",
+                                                            uselist=False,
+                                                            secondary="project_user",
+                                                            lazy="selectin"
+                                                            )
 
     # ForeignKey на заказ
     orders_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), nullable=False)
     orders: Mapped["Orders"] = relationship(back_populates="projects", uselist=False)
 
     # Руководитель
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-    user: Mapped["User"] = relationship(back_populates="projects", uselist=False)
+    lecturer_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    lecturers: Mapped["User"] = relationship(back_populates="projects",
+                                             uselist=False)
 
     # Вид проекта
     types_id: Mapped[int] = mapped_column(ForeignKey("types.id"), nullable=False)
@@ -135,6 +142,33 @@ class Projects(Base):
 
     # Мотивационные письма
     motivation_letters: Mapped["MotivationLetters"] = relationship(back_populates="projects", uselist=False)
+
+
+class SecondaryProjectUser(Base):
+    __tablename__ = "project_user"
+
+    # id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True, nullable=False)
+    projects_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), primary_key=True, nullable=False)
+
+    registration_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    # user: Mapped["User"] = relationship(back_populates="connection", uselist=False)
+    # projects: Mapped["Projects"] = relationship(back_populates="connection", uselist=True)
+
+
+class MotivationLetters(Base):
+    __tablename__ = "motivation_letters"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    user: Mapped["User"] = relationship(back_populates="motivation_letters", uselist=False)
+
+    projects_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=False)
+    projects: Mapped["Projects"] = relationship(back_populates="motivation_letters", uselist=True)
 
 
 class AbstractProjectCharacteristics(Base):
@@ -166,28 +200,3 @@ class Tags(AbstractProjectCharacteristics):
     __tablename__ = "tags"
 
     projects: Mapped["Projects"] = relationship(back_populates="tags", uselist=True)
-
-
-class Connection(Base):
-    __tablename__ = "connection"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-    user: Mapped["User"] = relationship(back_populates="connection", uselist=False)
-
-    projects_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=False)
-    projects: Mapped["Projects"] = relationship(back_populates="connection", uselist=True)
-
-
-class MotivationLetters(Base):
-    __tablename__ = "motivation_letters"
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    text: Mapped[str] = mapped_column(Text, nullable=False)
-
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-    user: Mapped["User"] = relationship(back_populates="motivation_letters", uselist=False)
-
-    projects_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=False)
-    projects: Mapped["Projects"] = relationship(back_populates="motivation_letters", uselist=True)

@@ -1,6 +1,8 @@
+from datetime import datetime
+from enum import Enum
 from pydantic import BaseModel
 
-from sqlalchemy import DateTime, Enum
+from sqlalchemy import DateTime
 
 
 class EnumCustomerType(str, Enum):
@@ -11,26 +13,25 @@ class EnumCustomerType(str, Enum):
 class Projects(BaseModel):
     id: int
     count_place: int
-    registration_date: DateTime
-    deadline_date: DateTime
+    registration_date: datetime
+    deadline_date: datetime
     customer_type: EnumCustomerType
     orders_id: int
     user_id: int
-    types_id: int | None = None
-    direction_identity_id: int | None = None
-    spheres_id: int | None = None
-    tags_id: int | None = None
+    # types_id: int | None = None
+    # direction_identity_id: int | None = None
+    # spheres_id: int | None = None
+    # tags_id: int | None = None
 
 
 class ProjectsAddForBackend(BaseModel):
     name: str
     count_place: int
-    registration_date: DateTime
-    deadline_date: DateTime
+    registration_date: datetime
+    deadline_date: datetime
     customer_type: EnumCustomerType
     orders_id: int
     user_id: int
-
 
 
 class ProjectsAddForUSER(BaseModel):
