@@ -10,16 +10,19 @@ from src.backend.services.auth import services as auth_services
 router = APIRouter(tags=["Orders"], prefix="/orders")
 
 
-@router.get("/all/{offset}", response_model=list[orders_models.Orders])
+@router.get("/all", response_model=list[orders_models.Orders])
 async def get_orders_all(
-        offset: int,
+        offset: int = 0,
         session: AsyncSession = Depends(databaseHandler.get_session),
         user_data: auth_models.User = Depends(auth_services.get_current_user),
 ):
-    return await orders_services.get_all(session=session, offset=offset, user_data=user_data)
+    if offset:
+        return await orders_services.get_all(session=session, offset=offset, user_data=user_data)
+    else:
+        return await orders_services.get_all(session=session, user_data=user_data,)
 
 
-@router.get("/{order_id}")
+@router.get("/{order_id}", response_model=orders_models.Orders)
 async def get_order(
         order_id: int,
         session: AsyncSession = Depends(databaseHandler.get_session),
@@ -27,10 +30,7 @@ async def get_order(
 ):
 
     order = await orders_services.get(session=session, order_id=order_id, user_data=user_data)
-    return {
-        "user": user_data,
-        "order": order
-    }
+    return order
 
 
 @router.post("/")

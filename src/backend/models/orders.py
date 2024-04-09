@@ -1,12 +1,13 @@
 from pydantic import BaseModel
-from src.backend.models import auth
+from src.backend.models import order_status
+
 
 class Orders(BaseModel):
     id: int
     name: str
     description: str
     user_id: int
-
+    status: order_status.OrderStatus
 
     class Config:
         from_attributes = True
@@ -15,22 +16,16 @@ class Orders(BaseModel):
 class OrderAddForBackend(BaseModel):
     name: str
     description: str
-    user_id: int = None
-    status_id: int = None
+    user_id: int
+    status_id: int
 
 
 class OrderAddForUSER(BaseModel):
     name: str
     description: str
 
-
-class OrderStatus(BaseModel):
-    id: int
-
-
-class Comment(BaseModel):
-    id: int
-
+# class Comment(BaseModel):
+#     id: int
 
 
 class OrderUpdate(BaseModel):

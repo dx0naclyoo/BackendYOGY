@@ -188,7 +188,7 @@ class OrderStatus(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
 
-    order: Mapped["Orders"] = relationship(back_populates="status", uselist=True, lazy="selectin")
+    order: Mapped["Orders"] = relationship(back_populates="status", uselist=True)
 
 
 class Comment(Base):
