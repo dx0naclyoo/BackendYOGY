@@ -102,17 +102,18 @@ class AuthServices:
         db_response = await session.execute(stmt)
         user = db_response.scalar()
 
-        user_roles = await role_services.get_list_user_roles(user=user, session=session)
+        if user:
+            user_roles = await role_services.get_list_user_roles(user=user, session=session)
+            # hashed_password = str.encode(user.password, encoding="utf-8")
 
-        if not user:
+            if self.validate_password(password, str.encode(user.password, encoding="utf-8")):
+                return self.create_token(user=user, roles=user_roles)
+
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate credentials")
+
+        else:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User does not exist, please register")
 
-        # hashed_password = str.encode(user.password, encoding="utf-8")
-
-        if self.validate_password(password, str.encode(user.password, encoding="utf-8")):
-            return self.create_token(user=user, roles=user_roles)
-
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate credentials")
 
     async def register(self, user_data: models.UserRegister, session: AsyncSession):
         stmt = select(tables.User).where(tables.User.username == user_data.username)
