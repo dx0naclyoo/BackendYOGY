@@ -22,4 +22,5 @@ async def add_projects(
         user: auth_models.User = Depends(auth_services.get_current_user),
         session: AsyncSession = Depends(databaseHandler.get_session)
 ):
-    return await projects_services.create(project=project, user=user, session=session)
+    pass
+    # return await projects_services.create(project=project, user=user, session=session)
