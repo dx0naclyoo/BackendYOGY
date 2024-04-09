@@ -80,11 +80,10 @@ class AuthServices:
     async def get_current_user(self, token: str = Depends(oauth_schema)) -> models.User:
         return await self.validate_token(token)
 
-    def create_token(self, user: tables.User, roles) -> models.Token:
+    def create_token(self, user: tables.User) -> models.Token:
         userdata = models.User(
             id=user.id,
             username=user.username,
-            roles=roles
         )
 
         payload = {
@@ -103,11 +102,11 @@ class AuthServices:
         user = db_response.scalar()
 
         if user:
-            user_roles = await role_services.get_list_user_roles(user=user, session=session)
+            # user_roles = await role_services.get_list_user_roles(user=user, session=session)
             # hashed_password = str.encode(user.password, encoding="utf-8")
 
             if self.validate_password(password, str.encode(user.password, encoding="utf-8")):
-                return self.create_token(user=user, roles=user_roles)
+                return self.create_token(user=user)
 
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate credentials")
 
