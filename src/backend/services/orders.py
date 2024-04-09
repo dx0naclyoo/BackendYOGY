@@ -8,7 +8,7 @@ from src.backend.models import auth as auth_models
 from src.backend.models import order_status as order_status_models
 from src.backend.models import orders as orders_models
 from src.backend.services.order_status import services as order_status_services
-
+from src.backend.services.comments import services as comments_services
 
 class OrdersServices:
 
@@ -36,6 +36,12 @@ class OrdersServices:
 
         order_status = await order_status_services.get_by_id(order_id=order.status_id, session=session)
 
+        if order.comment_id:
+            db_comment = await comments_services.get_by_id(session=session, comment_id=order.comment_id)
+            comment = db_comment.text
+        else:
+            comment = None
+
         return orders_models.Orders(
             id=order.id,
             name=order.name,
@@ -44,7 +50,8 @@ class OrdersServices:
             status=order_status_models.OrderStatus(
                 id=order_status.id,
                 name=order_status.name
-            )
+            ),
+            comment=comment
         )
 
     async def get_all(self,
@@ -60,6 +67,13 @@ class OrdersServices:
         new_order_list = []
         for x in orders:
             order_status = await order_status_services.get_by_id(order_id=x.status_id, session=session)
+
+            if x.comment_id:
+                db_comment = await comments_services.get_by_id(session=session, comment_id=x.comment_id)
+                comment = db_comment.text
+            else:
+                comment = None
+
             new_order_list.append(
                 orders_models.Orders(
                     id=x.id,
@@ -69,7 +83,8 @@ class OrdersServices:
                     status=order_status_models.OrderStatus(
                         id=order_status.id,
                         name=order_status.name
-                    )
+                    ),
+                    comment=comment
                 )
             )
 
