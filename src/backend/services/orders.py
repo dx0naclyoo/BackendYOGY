@@ -88,7 +88,7 @@ class OrdersServices:
                 )
             )
 
-        return list(new_order_list)
+        return new_order_list
 
     async def create(self,
                      session: AsyncSession,
