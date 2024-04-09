@@ -113,7 +113,6 @@ class AuthServices:
         else:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User does not exist, please register")
 
-
     async def register(self, user_data: models.UserRegister, session: AsyncSession):
         stmt = select(tables.User).where(tables.User.username == user_data.username)
         db_response = await session.execute(stmt)
