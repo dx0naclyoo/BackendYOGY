@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import List
 
 
 # string = "string".encode()
@@ -13,6 +14,8 @@ class UserRole(str, Enum):
     UNDEFINED: str = "Нечто"
 
 
-asd = [UserRole.ADMIN.value, UserRole.STUDENT.value]
+asd = [UserRole.ADMIN, UserRole.STUDENT]
 
+dsa = " ".join(asd)
 
+print(dsa.split(" "))

@@ -40,7 +40,7 @@ class User(Base):
 
     orders: Mapped["Orders"] = relationship(back_populates="user", uselist=True)
 
-    projects: Mapped["Projects"] = relationship(back_populates="lecturers", uselist=True, lazy="joined")
+    projects: Mapped["Projects"] = relationship(back_populates="lecturers", uselist=True, lazy="selectin")
 
     # lecturer_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     # lecturers: Mapped["User"] = relationship(back_populates="projects",
@@ -79,7 +79,7 @@ class Projects(Base):
     students: Mapped[list["User"]] = relationship(back_populates="student_projects",
                                                   uselist=True,
                                                   secondary="project_user",
-                                                  lazy="joined")
+                                                  lazy="selectin")
 
     # ForeignKey на заказ
     orders_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), nullable=False)
@@ -91,20 +91,13 @@ class Projects(Base):
                                              uselist=False)
 
     # Вид проекта
-    types_id: Mapped[int] = mapped_column(ForeignKey("types.id"), nullable=False)
-    types: Mapped["Types"] = relationship(back_populates="projects", uselist=False)
+    type: Mapped[int] = mapped_column(String, nullable=False)
 
     # Направление идентичности ЮГУ
-    direction_identity_id: Mapped[int] = mapped_column(ForeignKey("direction_identity.id"), nullable=False)
-    direction_identity: Mapped["DirectionIdentity"] = relationship(back_populates="projects", uselist=False)
+    identity: Mapped[int] = mapped_column(String, nullable=False)
 
     # Сферы проекта
-    spheres_id: Mapped[int] = mapped_column(ForeignKey("spheres.id"), nullable=False)
-    spheres: Mapped["Spheres"] = relationship(back_populates="projects", uselist=False)
-
-    # Тэги проекта
-    # tags_id: Mapped[int] = mapped_column(ForeignKey("tags.id"), nullable=False)
-    # tags: Mapped["Tags"] = relationship(back_populates="projects", uselist=False)
+    spheres: Mapped[int] = mapped_column(String, nullable=False)
 
     # Мотивационные письма
     motivation_letters: Mapped["MotivationLetters"] = relationship(back_populates="projects", uselist=False)
@@ -130,37 +123,6 @@ class MotivationLetters(Base):
 
     projects_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), nullable=False)
     projects: Mapped["Projects"] = relationship(back_populates="motivation_letters", uselist=True)
-
-
-class AbstractProjectCharacteristics(Base):
-    __abstract__ = True
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
-
-
-class DirectionIdentity(AbstractProjectCharacteristics):
-    __tablename__ = "direction_identity"
-
-    projects: Mapped["Projects"] = relationship(back_populates="direction_identity", uselist=True)
-
-
-class Spheres(AbstractProjectCharacteristics):
-    __tablename__ = "spheres"
-
-    projects: Mapped["Projects"] = relationship(back_populates="spheres", uselist=True)
-
-
-class Types(AbstractProjectCharacteristics):
-    __tablename__ = "types"
-
-    projects: Mapped["Projects"] = relationship(back_populates="types", uselist=True)
-
-
-# class Tags(AbstractProjectCharacteristics):
-#     __tablename__ = "tags"
-#
-#     projects: Mapped["Projects"] = relationship(back_populates="tags", uselist=True)
 
 
 class Orders(Base):
@@ -198,3 +160,36 @@ class Comment(Base):
     text: Mapped[str] = mapped_column(Text, nullable=False)
 
     order: Mapped["Orders"] = relationship(back_populates="comment", uselist=False)
+
+
+#
+# class AbstractProjectCharacteristics(Base):
+#     __abstract__ = True
+#
+#     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+#     name: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+#
+#
+# class DirectionIdentity(AbstractProjectCharacteristics):
+#     __tablename__ = "direction_identity"
+#
+#     projects: Mapped["Projects"] = relationship(back_populates="direction_identity", uselist=True)
+#
+#
+# class Spheres(AbstractProjectCharacteristics):
+#     __tablename__ = "spheres"
+#
+#     projects: Mapped["Projects"] = relationship(back_populates="spheres", uselist=True)
+#
+#
+# class Types(AbstractProjectCharacteristics):
+#     __tablename__ = "types"
+#
+#     projects: Mapped["Projects"] = relationship(back_populates="types", uselist=True)
+#
+
+# class Tags(AbstractProjectCharacteristics):
+#     __tablename__ = "tags"
+#
+#     projects: Mapped["Projects"] = relationship(back_populates="tags", uselist=True)
+

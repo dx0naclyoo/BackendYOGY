@@ -20,8 +20,10 @@ class RoleServices:
 
         if new_role == role_models.EnumBackendRole.ADMIN:
             if role_models.EnumBackendRole.ADMIN in old_role:
-                # set role admin for user :)
-                pass
+                if new_role in old_role:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You already have the role")
+                else:
+                    pass # Set role admin :)
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No permission for this action")
 

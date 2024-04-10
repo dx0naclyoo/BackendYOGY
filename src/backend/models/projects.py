@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from typing import List
 
 from pydantic import BaseModel
 
@@ -9,19 +10,19 @@ class EnumCustomerType(str, Enum):
     EXTERNAL = "Внешний"
 
 
-class Spheres(str, Enum):
+class EnumSpheres(str, Enum):
     IT = "It"
     volunteering = "Волонтёрство"
     history = "История"
     logistics = "Логистика"
 
 
-class Types(str, Enum):
+class EnumTypes(str, Enum):
     busines = "Бизнес"
     social = "Социальный"
 
 
-class Identity(str, Enum):
+class EnumIdentity(str, Enum):
     GREEN = "Green"
     LEAN = "Lean"
     SMART = "Smart"
@@ -30,9 +31,12 @@ class Identity(str, Enum):
 class BaseProjects(BaseModel):
     count_place: int
     deadline_date: datetime
-    customer_type: EnumCustomerType
-    orders_id: int
+    order_id: int
     lecturer_id: int
+    customer_type: EnumCustomerType
+    identity: List[EnumIdentity]
+    types: List[EnumTypes]
+    spheres: List[EnumSpheres]
 
 
 class Projects(BaseProjects):
@@ -40,12 +44,9 @@ class Projects(BaseProjects):
     registration_date: datetime
 
 
+
 class AddProjects(BaseProjects):
     pass
 
 
-class ProjectsAddForUSER(BaseModel):
-    name: str
-    description: str
-    user_id: int = None
-    orders_id: int
+
