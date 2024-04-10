@@ -86,7 +86,6 @@ class AuthServices:
                 detail=f"Could not validate token. Token={token}") from None
 
 
-
     def create_token(self, user: tables.User, roles) -> models.Token:
         userdata = models.User(
             id=user.id,
