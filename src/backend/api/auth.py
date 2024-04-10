@@ -26,12 +26,7 @@ async def login(
 ):
     token = await services.login(username=userdata.username, password=userdata.password, session=session)
 
-    headers = {
-        "Authorization": f"Bearer {token.access_token}"
-    }
-
-    if token:
-        return {"Response": 200, "token": token}, headers
+    return token
 
 
 @router.post("/register")
