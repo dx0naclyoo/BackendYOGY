@@ -23,7 +23,7 @@ async def get_orders_all(
         return await orders_services.get_all(session=session, user_data=user_data,)
 
 
-@router.get("/sorted/{mode}", response_model=list[orders_models.Orders])
+@router.get("/sorted", response_model=list[orders_models.Orders])
 async def get_orders_all_with_sorted_mode(
         mode: order_status_models.EnumOrderStatis,
         offset: int = 0,
