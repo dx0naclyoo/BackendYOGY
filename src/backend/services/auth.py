@@ -83,7 +83,7 @@ class AuthServices:
         else:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Could not validate token") from None
+                detail=f"Could not validate token. Token={token}") from None
 
 
 
