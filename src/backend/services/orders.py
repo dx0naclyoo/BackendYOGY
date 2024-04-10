@@ -62,7 +62,7 @@ class OrdersServices:
 
         stmt = select(tables.Orders).where(tables.Orders.user_id == user_data.id).limit(limit).offset(offset)
         result: Result = await session.execute(stmt)
-        orders = result.scalars().all()
+        orders = result.scalars()
 
         new_order_list = []
         for x in orders:
@@ -88,6 +88,46 @@ class OrdersServices:
                 )
             )
 
+        return new_order_list
+
+    async def get_orders_with_sorted(self,
+                                     offset: int,
+                                     mode: order_status_models.EnumOrderStatis,
+                                     user: auth_models.User,
+                                     session: AsyncSession,
+                                     limit: int = 10):
+
+        tables_role = await order_status_services.get_by_name(name=mode, session=session)
+        stmt = select(tables.Orders).where(
+            (tables.Orders.user_id == user.id) &
+            (tables.Orders.status_id == tables_role.id)).limit(limit).offset(offset)
+
+        result: Result = await session.execute(stmt)
+        orders = result.scalars()
+
+        new_order_list = []
+        for x in orders:
+            order_status = await order_status_services.get_by_id(order_id=x.status_id, session=session)
+
+            if x.comment_id:
+                db_comment = await comments_services.get_by_id(session=session, comment_id=x.comment_id)
+                comment = db_comment.text
+            else:
+                comment = None
+
+            new_order_list.append(
+                orders_models.Orders(
+                    id=x.id,
+                    name=x.name,
+                    description=x.description,
+                    user_id=x.user_id,
+                    status=order_status_models.OrderStatus(
+                        id=order_status.id,
+                        name=order_status.name
+                    ),
+                    comment=comment
+                )
+            )
         return new_order_list
 
     async def create(self,

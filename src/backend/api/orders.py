@@ -6,6 +6,7 @@ from src.backend.models import auth as auth_models
 from src.backend.models import orders as orders_models
 from src.backend.services.orders import services as orders_services
 from src.backend.services.auth import services as auth_services
+from src.backend.models import order_status as order_status_models
 
 router = APIRouter(tags=["Orders"], prefix="/orders")
 
@@ -20,6 +21,19 @@ async def get_orders_all(
         return await orders_services.get_all(session=session, offset=offset, user_data=user_data)
     else:
         return await orders_services.get_all(session=session, user_data=user_data,)
+
+
+@router.get("/sorted/{mode}", response_model=list[orders_models.Orders])
+async def get_orders_all_with_sorted_mode(
+        mode: order_status_models.EnumOrderStatis,
+        offset: int = 0,
+        session: AsyncSession = Depends(databaseHandler.get_session),
+        user: auth_models.User = Depends(auth_services.get_current_user),
+):
+    return await orders_services.get_orders_with_sorted(mode=mode,
+                                                        offset=offset,
+                                                        user=user,
+                                                        session=session)
 
 
 @router.get("/{order_id}", response_model=orders_models.Orders)
