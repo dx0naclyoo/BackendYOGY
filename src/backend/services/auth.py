@@ -78,7 +78,14 @@ class AuthServices:
         return user
 
     async def get_current_user(self, token: str = Depends(oauth_schema)) -> models.User:
-        return await self.validate_token(token)
+        if token:
+            return await self.validate_token(token)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Could not validate token") from None
+
+
 
     def create_token(self, user: tables.User, roles) -> models.Token:
         userdata = models.User(

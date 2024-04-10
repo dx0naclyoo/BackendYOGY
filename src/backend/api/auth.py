@@ -11,7 +11,6 @@ router = APIRouter(tags=["Auth"], prefix="/auth")
 
 @router.get("/", response_model=models.User)
 async def user(
-        request: Request,
         user_in_token: models.User = Depends(services.get_current_user),
         session: AsyncSession = Depends(databaseHandler.get_session)
 ):
