@@ -55,8 +55,14 @@ class Projects(BaseProjects):
     lecturer: auth_models.User
 
 
-class AddProjects(BaseProjects):
+class AddProjects(BaseModel):
     lecturer_id: int
-
+    count_place: int
+    deadline_date: datetime
+    order_id: int
+    customer_type: EnumCustomerType
+    identity: List[EnumIdentity]
+    types: List[EnumTypes]
+    spheres: List[EnumSpheres]
 
 
