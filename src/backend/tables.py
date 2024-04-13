@@ -46,6 +46,7 @@ class User(Base):
     # lecturers: Mapped["User"] = relationship(back_populates="projects",
     #                                          uselist=False)
 
+
 class Role(Base):
     __tablename__ = "role"
 
