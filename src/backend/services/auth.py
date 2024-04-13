@@ -79,7 +79,12 @@ class AuthServices:
 
     async def get_current_user(self, token: str = Depends(oauth_schema)) -> models.User:
         if token:
-            return await self.validate_token(token)
+            try:
+                return await self.validate_token(token)
+            except ValueError as ex:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Could not validate token. Token={ex}") from None
         else:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
