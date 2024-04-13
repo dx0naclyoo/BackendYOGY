@@ -66,16 +66,23 @@ class AuthServices:
             token,
     ) -> models.User:
 
-        confirm_user = self.decode_jwt(token).get("user")
-
         try:
-            user = models.User.parse_obj(confirm_user)
-        except ValidationError:
+            confirm_user = self.decode_jwt(token).get("user")
+        except ValidationError or ValueError as ex:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Could not validate credentials") from None
+                detail=f"Could not validate credentials: {ex}") from None
 
-        return user
+        if confirm_user:
+
+            try:
+                user = models.User.parse_obj(confirm_user)
+            except ValidationError:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Could not validate credentials") from None
+
+            return user
 
     async def get_current_user(self, token: str = Depends(oauth_schema)) -> models.User:
         if token:
