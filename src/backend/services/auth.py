@@ -58,8 +58,12 @@ class AuthServices:
             token: str | bytes,
             public_key: str = settings.public_key_path.read_text(),
             algorithms: str = settings.algorithm) -> dict:
-
-        return jwt.decode(token, key=public_key, algorithms=[algorithms])
+        try:
+            return jwt.decode(token, key=public_key, algorithms=[algorithms])
+        except ValueError as ex:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Could not validate credentials: {ex}")
 
     async def validate_token(
             self,
@@ -68,10 +72,10 @@ class AuthServices:
 
         try:
             confirm_user = self.decode_jwt(token).get("user")
-        except ValidationError or ValueError as ex:
+        except ValueError as ex:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Could not validate credentials: {ex}") from None
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Could not validate credentials: {ex}")
 
         if confirm_user:
 
@@ -80,22 +84,23 @@ class AuthServices:
             except ValidationError:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Could not validate credentials") from None
+                    detail="Could not validate credentials")
 
             return user
 
     async def get_current_user(self, token: str = Depends(oauth_schema)) -> models.User:
         if token:
             try:
-                return await self.validate_token(token)
-            except ValueError as ex:
+                token_user = await self.validate_token(token)
+                return token_user
+            except Exception as ex:
                 raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"Could not validate token. Token={ex}") from None
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=f"Could not validate token. Token={token}, exception={ex}")
         else:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Could not validate token. Token={token}") from None
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Could not validate token. Token={token}")
 
     def create_token(self, user: tables.User, roles) -> models.Token:
         userdata = models.User(
