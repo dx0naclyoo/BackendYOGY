@@ -30,7 +30,7 @@ class ProjectsServices:
                       limit: int = 10,
                       offset: int = 0) -> List[projects_models.Projects] | List:
 
-        stmt = select(tables.Projects)
+        stmt = select(tables.Projects).offset(offset).limit(limit)
         database_response = await session.execute(stmt)
         projects_all = database_response.scalars()
         list_projects = []
