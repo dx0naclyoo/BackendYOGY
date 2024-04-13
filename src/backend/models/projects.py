@@ -39,7 +39,7 @@ class EnumIdentity(str, Enum):
 
 class BaseProjects(BaseModel):
     count_place: int
-    deadline_date: datetime
+    deadline_date: datetime | str
     order_id: int
     customer_type: EnumCustomerType
     identity: List[EnumIdentity]
@@ -51,7 +51,7 @@ class Projects(BaseProjects):
     name: str
     description: str
     id: int
-    registration_date: datetime
+    registration_date: datetime | str
     lecturer: auth_models.User
 
 
