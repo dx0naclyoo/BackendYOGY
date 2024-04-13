@@ -11,7 +11,6 @@ from src.backend.services.order_status import services as order_status_services
 from src.backend.services.comments import services as comments_services
 
 class OrdersServices:
-
     async def _get(self, session: AsyncSession, order_id: int) -> tables.Orders:
         stmt = select(tables.Orders).where(tables.Orders.id == order_id)
         result: Result = await session.execute(stmt)

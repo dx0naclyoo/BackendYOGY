@@ -85,7 +85,6 @@ class AuthServices:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Could not validate token. Token={token}") from None
 
-
     def create_token(self, user: tables.User, roles) -> models.Token:
         userdata = models.User(
             id=user.id,
@@ -109,7 +108,7 @@ class AuthServices:
         user = db_response.scalar()
 
         if user:
-            user_roles = await role_services.get_list_user_roles(user=user, session=session)
+            user_roles = await role_services.get_list_user_roles_by_id_user(user_id=user.id, session=session)
             # hashed_password = str.encode(user.password, encoding="utf-8")
 
             if self.validate_password(password, str.encode(user.password, encoding="utf-8")):
@@ -158,18 +157,6 @@ class AuthServices:
                 }
             )
 
-    async def get_user(self, user: models.User, session: AsyncSession):
-        stmt = select(tables.User).where(tables.User.id == user.id)
-        result = await session.execute(stmt)
-        new_user = result.scalar()
-
-        user_roles = await role_services.get_list_user_roles(user=user, session=session)
-
-        return models.User(
-            username=new_user.username,
-            id=new_user.id,
-            roles=user_roles,
-        )
 
 
 services = AuthServices()

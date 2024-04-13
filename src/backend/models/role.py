@@ -9,7 +9,7 @@ class EnumBackendRole(str, Enum):
     LECTURER = "Lecturer"
     CUSTOMER = "Customer"
     UNDEFINED = "Undefined"
-
+    NONE = None
 
 class EnumUserViewRole(str, Enum):
     STUDENT = "Student"

@@ -16,14 +16,14 @@ class RoleServices:
                                 session: AsyncSession,
                                 new_role: role_models.EnumBackendRole) -> auth_models.User:
 
-        old_role = await self.get_list_user_roles(user=user, session=session)
+        old_role = await self.get_list_user_roles_by_id_user(user_id=user.id, session=session)
 
         if new_role == role_models.EnumBackendRole.ADMIN:
             if role_models.EnumBackendRole.ADMIN in old_role:
                 if new_role in old_role:
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You already have the role")
                 else:
-                    pass # Set role admin :)
+                    pass  # Set role admin :)
             else:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No permission for this action")
 
@@ -42,7 +42,7 @@ class RoleServices:
                 session.add(add_role)
                 await session.commit()
 
-                new_roles = await self.get_list_user_roles(user=user, session=session)
+                new_roles = await self.get_list_user_roles_by_id_user(user_id=user.id, session=session)
 
                 return auth_models.User(
                     username=user.username,
@@ -58,19 +58,24 @@ class RoleServices:
         # roles_user = await self.get_list_user_roles(user=user, session=session)
 
         # if role_models.EnumBackendRole.ADMIN in roles_user:
-        stmt = select(tables.Role).where(tables.Role.name == role)
-        db_response = await session.execute(stmt)
 
-        if db_response.scalar():
+        if role == role_models.EnumBackendRole.NONE:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail="Role with this name already exists")
+                                detail="Действие с этой ролью запрещено")
+        else:
+            stmt = select(tables.Role).where(tables.Role.name == role)
+            db_response = await session.execute(stmt)
 
-        database_role = tables.Role(
-            name=role
-        )
-        session.add(database_role)
-        await session.commit()
-        return database_role
+            if db_response.scalar():
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                    detail="Role with this name already exists")
+
+            database_role = tables.Role(
+                name=role
+            )
+            session.add(database_role)
+            await session.commit()
+            return database_role
 
         # raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No permission for this action")
 
@@ -78,11 +83,16 @@ class RoleServices:
                           role: role_models.EnumBackendRole,
                           session: AsyncSession) -> int:
 
-        stmt = select(tables.Role).where(tables.Role.name == role)
-        db_response = await session.execute(stmt)
-        role = db_response.scalar()
+        if role == role_models.EnumBackendRole.NONE:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                                detail="Действие с этой ролью запрещено")
 
-        return role.id
+        else:
+            stmt = select(tables.Role).where(tables.Role.name == role)
+            db_response = await session.execute(stmt)
+            role = db_response.scalar()
+
+            return role.id
 
     async def _get_role(self,
                         role_id: int,
@@ -93,11 +103,11 @@ class RoleServices:
         role = db_response.scalar()
         return role
 
-    async def get_list_user_roles(self,
-                                  user: auth_models.User,
-                                  session: AsyncSession) -> List[role_models.EnumBackendRole]:
+    async def get_list_user_roles_by_id_user(self,
+                                             user_id,
+                                             session: AsyncSession) -> List[role_models.EnumBackendRole]:
 
-        stmt_all = select(tables.SecondaryUserRole).where(tables.SecondaryUserRole.user_id == user.id)
+        stmt_all = select(tables.SecondaryUserRole).where(tables.SecondaryUserRole.user_id == user_id)
         database_response = await session.execute(stmt_all)
         end_user = database_response.scalars().all()
 
@@ -113,7 +123,7 @@ class RoleServices:
                           session: AsyncSession,
                           role: role_models.EnumBackendRole) -> auth_models.User:
 
-        user_roles = await self.get_list_user_roles(user=user, session=session)
+        user_roles = await self.get_list_user_roles_by_id_user(user_id=user.id, session=session)
 
         if role in user_roles:
             # remove role
@@ -128,7 +138,7 @@ class RoleServices:
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You do not have this role")
 
-        new_user_roles = await self.get_list_user_roles(user, session)
+        new_user_roles = await self.get_list_user_roles_by_id_user(user_id=user.id, session=session)
 
         return auth_models.User(
             username=user.username,
