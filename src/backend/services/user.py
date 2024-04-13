@@ -46,9 +46,9 @@ class UserServices:
                            role: role_models.EnumBackendRole,
                            user: auth_models.User,
                            session: AsyncSession) -> List[auth_models.User]:
-        print(2)
+
         if role != role_models.EnumBackendRole.NONE:
-            print(3)
+
             role_id = await role_services.get_id_role(role=role, session=session)
 
             stmt = select(tables.SecondaryUserRole).where(tables.SecondaryUserRole.role_id == role_id)
@@ -69,7 +69,7 @@ class UserServices:
                     roles=user_roles,
                 ))
         else:
-            print(4)
+
             stmt_all = select(tables.User)
             database_response = await session.execute(stmt_all)
             user_items = database_response.scalars()

@@ -3,6 +3,7 @@ from enum import Enum
 from typing import List
 
 from pydantic import BaseModel
+from src.backend.models import auth as auth_models
 
 
 class EnumCustomerType(str, Enum):
@@ -11,15 +12,23 @@ class EnumCustomerType(str, Enum):
 
 
 class EnumSpheres(str, Enum):
-    IT = "It"
-    volunteering = "Волонтёрство"
-    history = "История"
-    logistics = "Логистика"
+    IT = "IT"
+    Volunteering = "Волонтёрство"
+    Journalism = "Журналистика"
+    History = "История"
+    Logistics = "Логистика"
+    Marketing = "Маркетинг"
+    Education = "Образование"
+    Social_media = "SocialMedia"
+    Economy = "Экономика"
+    Jurisprudence = "Юриспруденция"
 
 
 class EnumTypes(str, Enum):
-    busines = "Бизнес"
-    social = "Социальный"
+    Business = "Бизнес"
+    Social = "Социальный"
+    Creative = "Творческий"
+    Research = "Исследовательский"
 
 
 class EnumIdentity(str, Enum):
@@ -32,7 +41,6 @@ class BaseProjects(BaseModel):
     count_place: int
     deadline_date: datetime
     order_id: int
-    lecturer_id: int
     customer_type: EnumCustomerType
     identity: List[EnumIdentity]
     types: List[EnumTypes]
@@ -40,13 +48,15 @@ class BaseProjects(BaseModel):
 
 
 class Projects(BaseProjects):
+    name: str
+    description: str
     id: int
     registration_date: datetime
-
+    lecturer: auth_models.User
 
 
 class AddProjects(BaseProjects):
-    pass
+    lecturer_id: int
 
 
 

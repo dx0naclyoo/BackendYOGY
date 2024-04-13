@@ -8,7 +8,9 @@ from src.backend import tables
 from src.backend.models import auth as auth_models
 from src.backend.models import projects as projects_models
 from src.backend.models import role as role_models
+from src.backend.services.orders import services as order_services
 from src.backend.services.role import services as role_services
+from src.backend.services.user import services as user_services
 
 
 class ProjectsServices:
@@ -34,20 +36,26 @@ class ProjectsServices:
         list_projects = []
 
         for x in projects_all:
+            lecturer = await user_services.get_user_by_id(user_id=x.lecturer_id, session=session)
+            order = await order_services.get(session=session, user_data=user, order_id=x.orders_id)
+
             list_projects.append(
                 projects_models.Projects(
+                    name=order.name,
+                    description=order.description,
                     id=x.id,
                     registration_date=x.registration_date,
                     count_place=x.count_place,
                     deadline_date=x.deadline_date,
                     order_id=x.orders_id,
-                    lecturer_id=x.lecturer_id,
+                    lecturer=lecturer,
                     customer_type=x.customer_type,
-                    identity=x.identity.split(" "),
-                    types=x.type.split(" "),
-                    spheres=x.spheres.split(" "),
+                    identity=[projects_models.EnumIdentity(x) for x in x.identity.split(" ")],
+                    types=[projects_models.EnumTypes(x) for x in x.type.split(" ")],
+                    spheres=[projects_models.EnumSpheres(x) for x in x.spheres.split(" ")],
                 )
             )
+
         return list_projects
 
     async def get_all_projects_lecturer(self,
@@ -61,18 +69,23 @@ class ProjectsServices:
         list_projects = []
 
         for x in projects_all:
+            lecturer = await user_services.get_user_by_id(user_id=x.lecturer_id, session=session)
+            order = await order_services.get(session=session, user_data=user, order_id=x.orders_id)
+
             list_projects.append(
                 projects_models.Projects(
+                    name=order.name,
+                    description=order.description,
                     id=x.id,
                     registration_date=x.registration_date,
                     count_place=x.count_place,
                     deadline_date=x.deadline_date,
                     order_id=x.orders_id,
-                    lecturer_id=x.lecturer_id,
+                    lecturer=lecturer,
                     customer_type=x.customer_type,
-                    identity=x.identity.split(" "),
-                    types=x.type.split(" "),
-                    spheres=x.spheres.split(" "),
+                    identity=[projects_models.EnumIdentity(x) for x in x.identity.split(" ")],
+                    types=[projects_models.EnumTypes(x) for x in x.type.split(" ")],
+                    spheres=[projects_models.EnumSpheres(x) for x in x.spheres.split(" ")],
                 )
             )
         return list_projects
@@ -82,7 +95,7 @@ class ProjectsServices:
                      user: auth_models.User,
                      project: projects_models.AddProjects) -> projects_models.Projects:
 
-        user_role = await role_services.get_list_user_roles(user=user, session=session)
+        user_role = await role_services.get_list_user_roles_by_id_user(user_id=user.id, session=session)
 
         if role_models.EnumBackendRole.ADMIN in user_role:
             new_project = tables.Projects(
@@ -91,6 +104,7 @@ class ProjectsServices:
                 orders_id=project.order_id,
                 lecturer_id=project.lecturer_id,
                 customer_type=project.customer_type,
+
                 identity=" ".join(project.identity),
                 type=" ".join(project.types),
                 spheres=" ".join(project.spheres),
@@ -98,20 +112,24 @@ class ProjectsServices:
 
             session.add(new_project)
             await session.commit()
-
             await session.refresh(new_project)
 
+            lecturer = await user_services.get_user_by_id(user_id=new_project.lecturer_id, session=session)
+            order = await order_services.get(session=session, user_data=user, order_id=new_project.orders_id)
+
             return projects_models.Projects(
+                name=order.name,
+                description=order.description,
                 id=new_project.id,
                 registration_date=new_project.registration_date,
                 count_place=new_project.count_place,
                 deadline_date=new_project.deadline_date,
                 order_id=new_project.orders_id,
-                lecturer_id=new_project.lecturer_id,
+                lecturer=lecturer,
                 customer_type=new_project.customer_type,
-                identity=new_project.identity.split(" "),
-                types=new_project.type.split(" "),
-                spheres=new_project.spheres.split(" "),
+                identity=[projects_models.EnumIdentity(x) for x in new_project.identity.split(" ")],
+                types=[projects_models.EnumTypes(x) for x in new_project.type.split(" ")],
+                spheres=[projects_models.EnumSpheres(x) for x in new_project.spheres.split(" ")],
             )
 
         else:
