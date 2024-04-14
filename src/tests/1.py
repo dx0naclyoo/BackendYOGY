@@ -36,6 +36,15 @@ from datetime import timedelta
 # print(asd)
 
 
+#
+# string = "ab"
+# print("".join([x * 5 for x in string]))
 
-string = "ab"
-print("".join([x * 5 for x in string]))
+def print_pattern(n):
+
+    print("MY")
+    for i in range(1, n + 1):
+        print("-" * (n - i) + str(i) + "-" * (n - i))
+
+
+print_pattern(9)

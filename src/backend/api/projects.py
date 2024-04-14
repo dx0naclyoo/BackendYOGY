@@ -38,7 +38,7 @@ async def get_projects_lecturer(
     return await projects_services.get_all_projects_lecturer(lecturer_id=lecturer_id, user=user, session=session)
 
 
-@router.get("/get/{id}")
+@router.get("/get/{projects_id}")
 async def get_project_by_id(
         projects_id: int,
         session: AsyncSession = Depends(databaseHandler.get_session)
