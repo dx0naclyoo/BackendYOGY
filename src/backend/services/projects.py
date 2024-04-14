@@ -26,9 +26,42 @@ class ProjectsServices:
 
     async def get_all(self,
                       session: AsyncSession,
-                      user: auth_models.User,
                       limit: int = 10,
                       offset: int = 0) -> List[projects_models.Projects] | List:
+
+        stmt = select(tables.Projects).offset(offset).limit(limit)
+        database_response = await session.execute(stmt)
+        projects_all = database_response.scalars()
+        list_projects = []
+
+        for x in projects_all:
+            lecturer = await user_services.get_user_by_id(user_id=x.lecturer_id, session=session)
+            order = await order_services.get_by_id(session=session, order_id=x.orders_id)
+
+            list_projects.append(
+                projects_models.Projects(
+                    name=order.name,
+                    description=order.description,
+                    id=x.id,
+                    registration_date=x.registration_date.strftime("%d.%m.%Y"),
+                    count_place=x.count_place,
+                    deadline_date=x.deadline_date.strftime("%d.%m.%Y"),
+                    order_id=x.orders_id,
+                    lecturer=lecturer,
+                    customer_type=x.customer_type,
+                    identity=[projects_models.EnumIdentity(x) for x in x.identity.split(" ")],
+                    types=[projects_models.EnumTypes(x) for x in x.type.split(" ")],
+                    spheres=[projects_models.EnumSpheres(x) for x in x.spheres.split(" ")],
+                )
+            )
+
+        return list_projects
+
+    async def get_all_users_project(self,
+                                    session: AsyncSession,
+                                    user: auth_models.User,
+                                    limit: int = 10,
+                                    offset: int = 0) -> List[projects_models.Projects] | List:
 
         stmt = select(tables.Projects).offset(offset).limit(limit)
         database_response = await session.execute(stmt)
@@ -134,6 +167,32 @@ class ProjectsServices:
 
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="only Admins can create projects")
+
+    async def get_project_by_id(self, projects_id, session: AsyncSession) -> projects_models.Projects:
+        stmt = select(tables.Projects).where(tables.Projects.id == projects_id)
+        response_database = await session.execute(stmt)
+        database_project = response_database.scalar()
+
+        if database_project:
+            lecturer = await user_services.get_user_by_id(user_id=database_project.lecturer_id, session=session)
+            order = await order_services.get_by_id(session=session, order_id=database_project.orders_id)
+
+            return projects_models.Projects(
+                name=order.name,
+                description=order.description,
+                id=database_project.id,
+                registration_date=database_project.registration_date,
+                count_place=database_project.count_place,
+                deadline_date=database_project.deadline_date,
+                order_id=database_project.orders_id,
+                lecturer=lecturer,
+                customer_type=database_project.customer_type,
+                identity=[projects_models.EnumIdentity(x) for x in database_project.identity.split(" ")],
+                types=[projects_models.EnumTypes(x) for x in database_project.type.split(" ")],
+                spheres=[projects_models.EnumSpheres(x) for x in database_project.spheres.split(" ")],
+            )
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
     # async def update(self,
     #                  session: AsyncSession,

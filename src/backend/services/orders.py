@@ -10,6 +10,7 @@ from src.backend.models import orders as orders_models
 from src.backend.services.order_status import services as order_status_services
 from src.backend.services.comments import services as comments_services
 
+
 class OrdersServices:
     async def _get(self, session: AsyncSession, order_id: int) -> tables.Orders:
         stmt = select(tables.Orders).where(tables.Orders.id == order_id)
@@ -20,6 +21,38 @@ class OrdersServices:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
 
         return order
+
+
+    async def get_by_id(self,
+                  session: AsyncSession,
+                  order_id: int) -> orders_models.Orders:
+
+        stmt = select(tables.Orders).where(tables.Orders.id == order_id)
+        result: Result = await session.execute(stmt)
+        order = result.scalar()
+
+        if not order:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+
+        order_status = await order_status_services.get_by_id(order_id=order.status_id, session=session)
+
+        if order.comment_id:
+            db_comment = await comments_services.get_by_id(session=session, comment_id=order.comment_id)
+            comment = db_comment.text
+        else:
+            comment = None
+
+        return orders_models.Orders(
+            id=order.id,
+            name=order.name,
+            description=order.description,
+            user_id=order.user_id,
+            status=order_status_models.OrderStatus(
+                id=order_status.id,
+                name=order_status.name
+            ),
+            comment=comment
+        )
 
     async def get(self,
                   session: AsyncSession,

@@ -22,16 +22,20 @@ from datetime import timedelta
 #
 # print(dsa.split(" "))
 
-data = datetime.now() - timedelta(days=1)
-print(data)
+# data = datetime.now() - timedelta(days=1)
+# print(data)
+#
+# new_data = data.strftime("%d.%m.%Y, %H:%M:%S")
+# print(new_data)
+#
+#
+# class Proj(BaseModel):
+#     time: datetime | str
+#
+# asd = Proj(time=new_data)
+# print(asd)
 
-new_data = data.strftime("%d.%m.%Y, %H:%M:%S")
-print(new_data)
 
 
-class Proj(BaseModel):
-    time: datetime | str
-
-asd = Proj(time=new_data)
-print(asd)
-
+string = "ab"
+print("".join([x * 5 for x in string]))

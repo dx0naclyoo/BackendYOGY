@@ -89,7 +89,7 @@ class Projects(Base):
     # Руководитель
     lecturer_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     lecturers: Mapped["User"] = relationship(back_populates="projects",
-                                             uselist=False)
+                                             uselist=True)
 
     # Вид проекта
     type: Mapped[int] = mapped_column(String, nullable=False)
