@@ -7,6 +7,7 @@ from .order_status import router as order_status_router
 from .comments import router as comment_router
 from .user import router as user_router
 from .letter import router as letter_router
+from .admin import router as admin_router
 
 router = APIRouter(prefix="/api/v1",)
 
@@ -18,4 +19,5 @@ router.include_router(projects_router)
 router.include_router(order_status_router)
 router.include_router(comment_router)
 router.include_router(letter_router)
+router.include_router(admin_router)
 
