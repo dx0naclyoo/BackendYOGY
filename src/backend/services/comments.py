@@ -2,11 +2,13 @@ from sqlalchemy import update, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.models import comments as comments_models
+from src.backend.models import auth as auth_models
 from src.backend import tables
 
 
 class CommentsServices:
     async def add_comments_to_orders(self,
+                                     user: auth_models.User,
                                      comment: comments_models.Comments,
                                      order_id: int,
                                      session: AsyncSession):
