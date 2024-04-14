@@ -9,7 +9,8 @@ router = APIRouter(tags=["Admin"], prefix="/admin")
 # user_data: models.UserRegister,
 # session: AsyncSession = Depends(databaseHandler.get_session)
 
-@router.get("/admin/projectletter/{project_id}")
+
+@router.get("/admin/project-letter/{project_id}")
 async def get_letter_time_for_order(
         project_id: int,
         session: AsyncSession = Depends(databaseHandler.get_session)
