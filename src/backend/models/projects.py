@@ -53,6 +53,7 @@ class Projects(BaseProjects):
     id: int
     registration_date: datetime | str
     lecturer: auth_models.User
+    students: List[auth_models.User]
 
 
 class AddProjects(BaseModel):

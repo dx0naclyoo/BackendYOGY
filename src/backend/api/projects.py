@@ -8,6 +8,7 @@ from src.backend.models import auth as auth_models
 from src.backend.models import projects as projects_models
 from src.backend.services.auth import services as auth_services
 from src.backend.services.projects import services as projects_services
+from src.backend.models import letter as letter_models
 
 router = APIRouter(tags=["Projects"], prefix="/projects")
 
@@ -54,3 +55,21 @@ async def add_projects(
 ):
 
     return await projects_services.create(project=project, user=user, session=session)
+
+
+@router.post("/accept")
+async def accept_student_in_project(
+        letter_id: int,
+        user: auth_models.User = Depends(auth_services.get_current_user),
+        session: AsyncSession = Depends(databaseHandler.get_session)
+):
+    return await projects_services.accept_student_in_project(letter_id, session, user)
+
+
+@router.post("/reject")
+async def reject_student_in_project(
+        letter_id: int,
+        user: auth_models.User = Depends(auth_services.get_current_user),
+        session: AsyncSession = Depends(databaseHandler.get_session)
+):
+    pass
