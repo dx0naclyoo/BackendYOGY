@@ -29,7 +29,7 @@ async def get_letter_by_id(
     return await letter_services.get_letter_by_id(letter_id=letter_id, session=session)
 
 
-@router.post("/add")
+@router.post("/add/{project_id}")
 async def add_letter(
         letter: letter_models.AddLetter,
         project_id: int,
